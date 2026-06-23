@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AORB | Sistema de Gestão de Projetos</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --preto: #000; --amarelo: #FBCB0A; --c0: #f8f8f8; --c1: #f0f0f0; --c3: #b0b0b0; --c5: #777; --c7: #444; --c9: #1a1a1a; --red: #c0392b; }
+body { font-family: 'Manrope', sans-serif; background: var(--c0); color: var(--c7); line-height: 1.6; font-size: 14px; }
+.container { display: flex; min-height: 100vh; }
+.sidebar { width: 280px; background: var(--preto); color: #fff; padding: 32px 24px; overflow-y: auto; border-right: 1px solid #333; }
+.logo { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--amarelo); margin-bottom: 4px; }
+.title-sidebar { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 32px; }
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin-bottom: 12px; display: block; }
+select, input, textarea, button { font-family: 'Manrope', sans-serif; font-size: 13px; }
+select { width: 100%; padding: 10px 12px; background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 6px; margin-bottom: 8px; cursor: pointer; }
+.btn-novo { width: 100%; padding: 10px; background: var(--amarelo); color: var(--preto); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; text-transform: uppercase; margin-bottom: 24px; }
+.nav-btn { width: 100%; text-align: left; padding: 10px 12px; margin-bottom: 4px; background: transparent; color: #ccc; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.nav-btn.active { background: var(--amarelo); color: var(--preto); font-weight: 600; }
+.main { flex: 1; display: flex; flex-direction: column; }
+.header { background: var(--preto); color: #fff; padding: 40px 48px; border-bottom: 4px solid var(--amarelo); }
+.header h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.header p { font-size: 14px; color: #bbb; margin: 0; }
+.content { flex: 1; overflow-y: auto; padding: 40px 48px; max-width: 1200px; margin: 0 auto; width: 100%; }
+h2 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.accent-line { width: 40px; height: 3px; background: var(--amarelo); margin: 12px 0 24px; }
+.form-group { margin-bottom: 16px; }
+label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--c9); margin-bottom: 6px; }
+input[type="text"], input[type="date"], input[type="number"], textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+textarea { resize: vertical; min-height: 80px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kc { padding: 20px; background: var(--c1); border-left: 3px solid var(--amarelo); border-radius: 4px; }
+.kc.cr { border-left-color: var(--red); }
+.kl { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--c5); margin-bottom: 8px; }
+.kv { font-size: 28px; font-weight: 800; color: var(--preto); }
+.kv.rd { color: var(--red); }
+.ks { font-size: 12px; color: var(--c5); margin-top: 6px; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; background: #fff; border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; }
+th { background: var(--preto); color: #fff; padding: 12px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+td { padding: 12px 14px; border-bottom: 1px solid #f0f0f0; }
+tr:hover td { background: #fafafa; }
+.btn-primary { padding: 10px 20px; background: var(--preto); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+.btn-secondary { padding: 10px 20px; background: #f0f0f0; color: var(--c9); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+.btn-danger { padding: 4px 8px; background: #fff; color: var(--red); border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
+.hidden { display: none; }
+.empty-state { padding: 40px 24px; text-align: center; color: #999; font-size: 13px; background: var(--c1); border-radius: 8px; }
+.footer { background: #fff; padding: 24px 48px; border-top: 1px solid #e8e8e8; }
+.form-row { display: flex; gap: 12px; }
+.db { border: 1px solid #e8e8e8; padding: 20px; margin: 16px 0; border-radius: 6px; background: #fff; }
+.mb { display: flex; height: 8px; overflow: hidden; margin: 12px 0; background: var(--c1); border-radius: 4px; }
+.mb div { height: 100%; background: var(--amarelo); }
+@media(max-width: 768px) { .container { flex-direction: column; } .sidebar { width: 100%; max-height: 200px; overflow-x: auto; } .content { padding: 24px; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">A · O · R · B</div>
+    <div class="title-sidebar">Gestão de Projetos</div>
+    
+    <label class="section-label">Projeto</label>
+    <select id="projetoSelect" onchange="trocarProjeto()">
+      <option value="">-- Selecionar --</option>
+    </select>
+    <button class="btn-novo" onclick="abrirNovoFormulario()">+ Novo</button>
+
+    <div id="navContainer" class="hidden">
+      <label class="section-label">Navegação</label>
+      <button class="nav-btn active" onclick="mudarSecao('01')">📋 Identificação</button>
+      <button class="nav-btn" onclick="mudarSecao('02')">📊 Indicadores</button>
+      <button class="nav-btn" onclick="mudarSecao('03')">👥 Ecosistema</button>
+      <button class="nav-btn" onclick="mudarSecao('04')">📅 Cronograma</button>
+      <button class="nav-btn" onclick="mudarSecao('05')">✓ Status</button>
+      <button class="nav-btn" onclick="mudarSecao('06')">🏗️ Disciplinas</button>
+      <button class="nav-btn" onclick="mudarSecao('07')">🤝 Coordenação</button>
+      <button class="nav-btn" onclick="mudarSecao('08')">📝 Conclusão</button>
+
+      <div style="margin-top: 32px; padding-top: 32px; border-top: 1px solid #333; font-size: 11px; color: #666;">
+        <div style="margin-bottom: 8px;"><strong>Versão:</strong> <span id="versionBadge">v1</span></div>
+        <button class="btn-novo" onclick="criarNovaVersao()" style="background: #666; color: #fff; font-size: 11px;">Nova Versão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- NOVO PROJETO -->
+    <div id="novoFormulario" class="hidden">
+      <div class="content">
+        <h2>Novo Projeto</h2>
+        <div class="accent-line"></div>
+        <form onsubmit="salvarNovoProjeto(event)" style="max-width: 600px;">
+          <div class="form-group">
+            <label>Nome do Empreendimento *</label>
+            <input type="text" id="nomeProj" required>
+          </div>
+          <div class="form-group">
+            <label>Localização *</label>
+            <input type="text" id="locProj" placeholder="Ex: Goiânia, GO" required>
+          </div>
+          <div class="form-group">
+            <label>Incorporadora *</label>
+            <input type="text" id="incProj" placeholder="Ex: SOMOS" required>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Data Início</label>
+              <input type="date" id="dataInicio">
+            </div>
+            <div class="form-group">
+              <label>Data Fim</label>
+              <input type="date" id="dataFim">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>VGV (R$)</label>
+            <input type="number" id="vgvProj">
+          </div>
+          <div class="form-group">
+            <label>Responsável AORB</label>
+            <input type="text" id="respProj">
+          </div>
+          <div class="form-row">
+            <button class="btn-primary" type="submit">Criar Projeto</button>
+            <button class="btn-secondary" type="button" onclick="fecharNovoFormulario()">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- HEADER + CONTEÚDO -->
+    <div id="projetoContainer" class="hidden">
+      <div class="header">
+        <div style="font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--amarelo); margin-bottom: 12px;">AORB</div>
+        <h1 id="headerNome">Projeto</h1>
+        <p id="headerInfo">Localização • Incorporadora</p>
+      </div>
+
+      <div class="content">
+        <!-- SEÇÃO 01 -->
+        <div id="secao-01" class="secao">
+          <h2>Identificação e Contexto</h2>
+          <div class="accent-line"></div>
+          <div id="view-01"></div>
+          <button class="btn-primary" onclick="mudarSecao('02')" style="margin-top: 16px;">Próximo →</button>
+        </div>
+
+        <!-- SEÇÃO 02 -->
+        <div id="secao-02" class="secao hidden">
+          <h2>Indicadores Gerais</h2>
+          <div class="accent-line"></div>
+          <div class="grid-4">
+            <div class="kc">
+              <div class="kl">PPC (%)</div>
+              <input type="number" id="ppc" value="0" min="0" max="100" onchange="salvarSecao('02')" style="width: 100%; border: none; background: transparent; font-size: 20px; font-weight: 700; padding: 0;">
+              <div class="ks">Meta: > 85%</div>
+            </div>
+            <div class="kc">
+              <div class="kl">IDP</div>
+              <input type="number" id="idp" value="1.0" min="0" step="0.1" onchange="salvarSecao('02')" style="width: 100%; border: none; background: transparent; font-size: 20px; font-weight: 700; padding: 0;">
+              <div class="ks">Meta: ≤ 1.0</div>
+            </div>
+            <div class="kc">
+              <div class="kl">IDC</div>
+              <input type="number" id="idc" value="1.0" min="0" step="0.1" onchange="salvarSecao('02')" style="width: 100%; border: none; background: transparent; font-size: 20px; font-weight: 700; padding: 0;">
+              <div class="ks">Meta: ≤ 1.0</div>
+            </div>
+            <div class="kc cr">
+              <div class="kl">NCF Crítica</div>
+              <input type="number" id="ncf" value="0" min="0" onchange="salvarSecao('02')" style="width: 100%; border: none; background: transparent; font-size: 20px; font-weight: 700; padding: 0; color: var(--red);">
+              <div class="ks">Meta: 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 03 -->
+        <div id="secao-03" class="secao hidden">
+          <h2>Ecosistema de Projetos</h2>
+          <div class="accent-line"></div>
+          <div class="db">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Adicionar Disciplina</h3>
+            <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 12px;">
+              <input type="text" id="nomeDisciplina" placeholder="Ex: ARQ (Arquitetura)">
+              <select id="statusDisciplina">
+                <option value="Ativa">Ativa</option>
+                <option value="Concluída">Concluída</option>
+                <option value="Atrasada">Atrasada</option>
+              </select>
+              <button class="btn-primary" onclick="adicionarDisciplina()" style="width: 120px;">+ Add</button>
+            </div>
+          </div>
+          <table id="tabelaDisciplinas"><thead><tr><th>Disciplina</th><th>Projetista</th><th>Coordenação</th><th>Status</th><th></th></tr></thead><tbody id="bodyDisciplinas"></tbody></table>
+        </div>
+
+        <!-- SEÇÃO 04 -->
+        <div id="secao-04" class="secao hidden">
+          <h2>Cronograma e Fases</h2>
+          <div class="accent-line"></div>
+          <div class="db">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Nova Fase</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px;">
+              <input type="text" id="nomeFase" placeholder="Ex: Projeto Básico">
+              <input type="date" id="dataInicioFase">
+              <input type="date" id="dataFimFase">
+              <input type="number" id="percentualFase" placeholder="%" min="0" max="100" value="0">
+              <button class="btn-primary" onclick="adicionarFase()" style="width: 120px;">+ Add</button>
+            </div>
+          </div>
+          <div id="fasesList"></div>
+        </div>
+
+        <!-- SEÇÃO 05 -->
+        <div id="secao-05" class="secao hidden">
+          <h2>Radiografia de Status</h2>
+          <div class="accent-line"></div>
+          <div class="grid-3">
+            <div class="kc cr">
+              <div class="kl">Pendente</div>
+              <div class="kv rd" id="countPendente">0</div>
+            </div>
+            <div class="kc">
+              <div class="kl">Limbo</div>
+              <div class="kv" id="countLimbo">0</div>
+            </div>
+            <div class="kc">
+              <div class="kl">Concluído</div>
+              <div class="kv" id="countConcluido">0</div>
+            </div>
+          </div>
+          <div class="db">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Novo Item</h3>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px;">
+              <input type="text" id="descricaoItem" placeholder="Descrição">
+              <select id="statusItem">
+                <option value="Pendente">Pendente</option>
+                <option value="Limbo">Limbo</option>
+                <option value="Concluído">Concluído</option>
+              </select>
+              <select id="prioridadeItem">
+                <option value="Normal">Normal</option>
+                <option value="Alta">Alta</option>
+                <option value="Crítica">Crítica</option>
+              </select>
+              <button class="btn-primary" onclick="adicionarItem()" style="width: 120px;">+ Add</button>
+            </div>
+          </div>
+          <div id="itensList"></div>
+        </div>
+
+        <!-- SEÇÃO 06 -->
+        <div id="secao-06" class="secao hidden">
+          <h2>Análise por Disciplina</h2>
+          <div class="accent-line"></div>
+          <div id="disciplinasDetails"></div>
+        </div>
+
+        <!-- SEÇÃO 07 -->
+        <div id="secao-07" class="secao hidden">
+          <h2>Coordenação e Conflitos</h2>
+          <div class="accent-line"></div>
+          <h3>Atas de Coordenação</h3>
+          <div class="db">
+            <h4 style="font-size: 13px; margin-bottom: 12px;">Nova Ata</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px;">
+              <input type="date" id="dataAta">
+              <input type="text" id="faseAta" placeholder="Fase">
+              <input type="number" id="itensAta" placeholder="Itens" min="0" value="0">
+              <button class="btn-primary" onclick="adicionarAta()" style="width: 120px;">+ Add</button>
+            </div>
+          </div>
+          <table id="tabelaAtas"><thead><tr><th>Data</th><th>Fase</th><th>Itens</th></tr></thead><tbody id="bodyAtas"></tbody></table>
+        </div>
+
+        <!-- SEÇÃO 08 -->
+        <div id="secao-08" class="secao hidden">
+          <h2>Conclusão e Recomendações</h2>
+          <div class="accent-line"></div>
+          <div class="form-group">
+            <label>Resumo Executivo</label>
+            <textarea id="resumoExec" onchange="salvarSecao('08')" placeholder="Escreva um breve resumo..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Principais Riscos</label>
+            <textarea id="riscos" onchange="salvarSecao('08')" placeholder="Um risco por linha..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Próximas Ações</label>
+            <textarea id="acoes" onchange="salvarSecao('08')" placeholder="Uma ação por linha..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <button class="btn-primary" onclick="exportarDossie()" style="background: var(--amarelo); color: var(--preto);">⬇ Exportar Dossiê HTML</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let projetos = JSON.parse(localStorage.getItem('aorb_projetos')) || [];
+let projetoAtualId = localStorage.getItem('aorb_projeto_atual') || null;
+let secaoAtual = '01';
+
+function salvarProjetos() {
+  localStorage.setItem('aorb_projetos', JSON.stringify(projetos));
+  localStorage.setItem('aorb_projeto_atual', projetoAtualId);
+}
+
+function gerarID() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function atualizarSelect() {
+  const select = document.getElementById('projetoSelect');
+  select.innerHTML = '<option value="">-- Selecionar --</option>';
+  projetos.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.nome} (${p.versao})`;
+    select.appendChild(opt);
+  });
+  select.value = projetoAtualId || '';
+}
+
+function abrirNovoFormulario() {
+  document.getElementById('novoFormulario').classList.remove('hidden');
+  document.getElementById('projetoContainer').classList.add('hidden');
+}
+
+function fecharNovoFormulario() {
+  document.getElementById('novoFormulario').classList.add('hidden');
+  if (projetoAtualId) document.getElementById('projetoContainer').classList.remove('hidden');
+}
+
+function salvarNovoProjeto(e) {
+  e.preventDefault();
+  const novoProjeto = {
+    id: gerarID(),
+    nome: document.getElementById('nomeProj').value,
+    localizacao: document.getElementById('locProj').value,
+    incorporadora: document.getElementById('incProj').value,
+    dataInicio: document.getElementById('dataInicio').value,
+    dataFim: document.getElementById('dataFim').value,
+    vgv: document.getElementById('vgvProj').value,
+    responsavel: document.getElementById('respProj').value,
+    versao: 'v1',
+    dataCriacao: new Date().toISOString(),
+    secoes: {
+      '01': {}, '02': { ppc: 0, idp: 1.0, idc: 1.0, ncf: 0 },
+      '03': { disciplinas: [] }, '04': { fases: [] }, '05': { itens: [] },
+      '06': { disciplinaDetails: {} }, '07': { atas: [] }, '08': { resumo: '', riscos: '', acoes: '' }
+    }
+  };
+  projetos.push(novoProjeto);
+  projetoAtualId = novoProjeto.id;
+  salvarProjetos();
+  atualizarSelect();
+  fecharNovoFormulario();
+  carregarProjeto();
+}
+
+function trocarProjeto() {
+  projetoAtualId = document.getElementById('projetoSelect').value;
+  if (projetoAtualId) {
+    salvarProjetos();
+    carregarProjeto();
+  } else {
+    document.getElementById('projetoContainer').classList.add('hidden');
+  }
+}
+
+function carregarProjeto() {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  if (!proj) return;
+
+  document.getElementById('novoFormulario').classList.add('hidden');
+  document.getElementById('projetoContainer').classList.remove('hidden');
+  document.getElementById('navContainer').classList.remove('hidden');
+
+  document.getElementById('headerNome').textContent = proj.nome;
+  document.getElementById('headerInfo').textContent = `${proj.localizacao} • ${proj.incorporadora}`;
+  document.getElementById('versionBadge').textContent = proj.versao;
+
+  mudarSecao('01');
+  renderizarSecoes();
+}
+
+function mudarSecao(id) {
+  document.querySelectorAll('.secao').forEach(s => s.classList.add('hidden'));
+  document.getElementById(`secao-${id}`).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  secaoAtual = id;
+}
+
+function renderizarSecoes() {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  if (!proj) return;
+  const s = proj.secoes;
+
+  // Seção 01
+  document.getElementById('view-01').innerHTML = `
+    <div class="grid-2">
+      <div class="kc"><div class="kl">Nome</div><div style="font-size:15px;font-weight:700">${proj.nome}</div></div>
+      <div class="kc"><div class="kl">Localização</div><div style="font-size:15px;font-weight:700">${proj.localizacao}</div></div>
+      <div class="kc"><div class="kl">Incorporadora</div><div style="font-size:15px;font-weight:700">${proj.incorporadora}</div></div>
+      <div class="kc"><div class="kl">VGV</div><div style="font-size:15px;font-weight:700">R$ ${Number(proj.vgv || 0).toLocaleString('pt-BR')}</div></div>
+    </div>
+  `;
+
+  // Seção 02
+  document.getElementById('ppc').value = s['02'].ppc || 0;
+  document.getElementById('idp').value = s['02'].idp || 1.0;
+  document.getElementById('idc').value = s['02'].idc || 1.0;
+  document.getElementById('ncf').value = s['02'].ncf || 0;
+
+  // Seção 03
+  renderDisciplinas(s['03'].disciplinas || []);
+
+  // Seção 04
+  renderFases(s['04'].fases || []);
+
+  // Seção 05
+  const itens = s['05'].itens || [];
+  document.getElementById('countPendente').textContent = itens.filter(i => i.status === 'Pendente').length;
+  document.getElementById('countLimbo').textContent = itens.filter(i => i.status === 'Limbo').length;
+  document.getElementById('countConcluido').textContent = itens.filter(i => i.status === 'Concluído').length;
+  renderItens(itens);
+
+  // Seção 07
+  renderAtas(s['07'].atas || []);
+}
+
+function renderDisciplinas(disc) {
+  const tbody = document.getElementById('bodyDisciplinas');
+  tbody.innerHTML = disc.map(d => `
+    <tr>
+      <td>${d.nome}</td>
+      <td><input type="text" value="${d.projetista || ''}" onchange="atualizarDisciplina('${d.id}', 'projetista', this.value)" style="width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;"></td>
+      <td><input type="text" value="${d.coordenacao || ''}" onchange="atualizarDisciplina('${d.id}', 'coordenacao', this.value)" style="width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;"></td>
+      <td><select onchange="atualizarDisciplina('${d.id}', 'status', this.value)" style="width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;">
+        <option value="Ativa" ${d.status === 'Ativa' ? 'selected' : ''}>Ativa</option>
+        <option value="Concluída" ${d.status === 'Concluída' ? 'selected' : ''}>Concluída</option>
+        <option value="Atrasada" ${d.status === 'Atrasada' ? 'selected' : ''}>Atrasada</option>
+      </select></td>
+      <td><button class="btn-danger" onclick="removerDisciplina('${d.id}')">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function adicionarDisciplina() {
+  const nome = document.getElementById('nomeDisciplina').value.trim();
+  if (!nome) return;
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const nova = { id: gerarID(), nome, status: document.getElementById('statusDisciplina').value, projetista: '', coordenacao: '' };
+  proj.secoes['03'].disciplinas.push(nova);
+  salvarProjetos();
+  renderDisciplinas(proj.secoes['03'].disciplinas);
+  document.getElementById('nomeDisciplina').value = '';
+}
+
+function atualizarDisciplina(id, campo, valor) {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const d = proj.secoes['03'].disciplinas.find(x => x.id === id);
+  if (d) d[campo] = valor;
+  salvarProjetos();
+}
+
+function removerDisciplina(id) {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  proj.secoes['03'].disciplinas = proj.secoes['03'].disciplinas.filter(d => d.id !== id);
+  salvarProjetos();
+  renderDisciplinas(proj.secoes['03'].disciplinas);
+}
+
+function renderFases(fases) {
+  document.getElementById('fasesList').innerHTML = fases.map(f => `
+    <div class="db">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${f.nome}</div>
+          <div style="font-size:12px;color:#666;margin-top:4px">${f.dataInicio} → ${f.dataFim}</div>
+        </div>
+        <button class="btn-danger" onclick="removerFase('${f.id}')">✕</button>
+      </div>
+      <div class="mb"><div style="width:${f.percentual}%"></div></div>
+      <div style="font-size:12px;color:#999">${f.percentual}% concluído</div>
+    </div>
+  `).join('');
+}
+
+function adicionarFase() {
+  const nome = document.getElementById('nomeFase').value.trim();
+  if (!nome) return;
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const nova = {
+    id: gerarID(),
+    nome,
+    dataInicio: document.getElementById('dataInicioFase').value,
+    dataFim: document.getElementById('dataFimFase').value,
+    percentual: parseInt(document.getElementById('percentualFase').value) || 0
+  };
+  proj.secoes['04'].fases.push(nova);
+  salvarProjetos();
+  renderFases(proj.secoes['04'].fases);
+  document.getElementById('nomeFase').value = '';
+}
+
+function removerFase(id) {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  proj.secoes['04'].fases = proj.secoes['04'].fases.filter(f => f.id !== id);
+  salvarProjetos();
+  renderFases(proj.secoes['04'].fases);
+}
+
+function renderItens(itens) {
+  document.getElementById('itensList').innerHTML = itens.map(i => `
+    <div style="background:#fff;padding:12px 16px;border-radius:6px;border:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${i.descricao}</div>
+        <div style="font-size:11px;color:#999;margin-top:4px">${i.status} • ${i.prioridade}</div>
+      </div>
+      <button class="btn-danger" onclick="removerItem('${i.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function adicionarItem() {
+  const desc = document.getElementById('descricaoItem').value.trim();
+  if (!desc) return;
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const novo = {
+    id: gerarID(),
+    descricao: desc,
+    status: document.getElementById('statusItem').value,
+    prioridade: document.getElementById('prioridadeItem').value
+  };
+  proj.secoes['05'].itens.push(novo);
+  salvarProjetos();
+  renderItens(proj.secoes['05'].itens);
+  document.getElementById('descricaoItem').value = '';
+}
+
+function removerItem(id) {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  proj.secoes['05'].itens = proj.secoes['05'].itens.filter(i => i.id !== id);
+  salvarProjetos();
+  renderItens(proj.secoes['05'].itens);
+}
+
+function renderAtas(atas) {
+  const tbody = document.getElementById('bodyAtas');
+  tbody.innerHTML = atas.map(a => `
+    <tr>
+      <td>${new Date(a.data).toLocaleDateString('pt-BR')}</td>
+      <td>${a.fase}</td>
+      <td>${a.itens}</td>
+    </tr>
+  `).join('');
+}
+
+function adicionarAta() {
+  const data = document.getElementById('dataAta').value;
+  if (!data) return;
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const nova = {
+    data,
+    fase: document.getElementById('faseAta').value,
+    itens: parseInt(document.getElementById('itensAta').value) || 0
+  };
+  proj.secoes['07'].atas.push(nova);
+  salvarProjetos();
+  renderAtas(proj.secoes['07'].atas);
+  document.getElementById('dataAta').value = '';
+}
+
+function salvarSecao(id) {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  if (id === '02') {
+    proj.secoes['02'] = {
+      ppc: parseInt(document.getElementById('ppc').value) || 0,
+      idp: parseFloat(document.getElementById('idp').value) || 1.0,
+      idc: parseFloat(document.getElementById('idc').value) || 1.0,
+      ncf: parseInt(document.getElementById('ncf').value) || 0
+    };
+  } else if (id === '08') {
+    proj.secoes['08'] = {
+      resumo: document.getElementById('resumoExec').value,
+      riscos: document.getElementById('riscos').value,
+      acoes: document.getElementById('acoes').value
+    };
+  }
+  salvarProjetos();
+}
+
+function criarNovaVersao() {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  const num = parseInt(proj.versao.substring(1)) + 1;
+  const nova = { ...proj, id: gerarID(), versao: `v${num}`, dataCriacao: new Date().toISOString() };
+  projetos.push(nova);
+  projetoAtualId = nova.id;
+  salvarProjetos();
+  atualizarSelect();
+  carregarProjeto();
+}
+
+function exportarDossie() {
+  const proj = projetos.find(p => p.id === projetoAtualId);
+  if (!proj) return;
+  const s = proj.secoes;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AORB | Dossiê — ${proj.nome}</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--preto:#000;--amarelo:#FBCB0A;--c0:#f8f8f8;--c1:#f0f0f0;--c3:#b0b0b0;--c5:#777;--c7:#444;--red:#c0392b;--grn:#27ae60;--ora:#e67e22;--wht:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Manrope',sans-serif;background:var(--c0);color:var(--c7);line-height:1.7;font-size:14px}
+.header{background:var(--preto);padding:60px 40px;color:var(--wht);border-bottom:4px solid var(--amarelo)}
+.header-inner{max-width:1100px;margin:0 auto}
+.hb{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amarelo);margin-bottom:12px}
+.ht{font-size:32px;font-weight:800;margin-bottom:8px}
+.hs{font-size:14px;color:#bbb}
+.hm{margin-top:24px;display:flex;gap:24px;flex-wrap:wrap;font-size:12px}
+section{background:var(--wht);margin:32px auto;max-width:1100px;padding:40px;border:1px solid #e8e8e8}
+h2{font-size:24px;font-weight:800;margin-bottom:6px}
+.acc{width:40px;height:3px;background:var(--amarelo);margin:12px 0 24px;display:block}
+h3{font-size:16px;font-weight:700;margin:24px 0 12px}
+.kg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+.kc{padding:20px;background:var(--c1);border-left:3px solid var(--amarelo);border-radius:4px}
+.kl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--c5);margin-bottom:8px}
+.kv{font-size:28px;font-weight:800;color:var(--preto)}
+.ks{font-size:12px;color:var(--c5);margin-top:6px}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+th{background:var(--preto);color:var(--wht);padding:12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase}
+td{padding:12px;border-bottom:1px solid #f0f0f0}
+tr:hover td{background:#fafafa}
+.footer{max-width:1100px;margin:0 auto;padding:40px;text-align:center;font-size:12px;color:var(--c5);border-top:1px solid #e0e0e0}
+</style></head><body>
+<div class="header"><div class="header-inner">
+<div class="hb">A · O · R · B</div>
+<h1 class="ht">Dossiê de Gestão de Projetos</h1>
+<p class="hs">${proj.nome} — ${proj.localizacao}</p>
+<div class="hm">
+<div><strong>Incorporadora:</strong><br>${proj.incorporadora}</div>
+<div><strong>Emissão:</strong><br>${hoje} · ${proj.versao}</div>
+<div><strong>Responsável:</strong><br>${proj.responsavel || '—'}</div>
+</div></div></div>
+
+<section><h2>01. Identificação</h2><span class="acc"></span>
+<div class="kg" style="grid-template-columns:repeat(2,1fr)">
+<div class="kc"><div class="kl">Nome</div><div style="font-weight:700;font-size:15px">${proj.nome}</div></div>
+<div class="kc"><div class="kl">Localização</div><div style="font-weight:700;font-size:15px">${proj.localizacao}</div></div>
+<div class="kc"><div class="kl">Incorporadora</div><div style="font-weight:700;font-size:15px">${proj.incorporadora}</div></div>
+<div class="kc"><div class="kl">VGV</div><div style="font-weight:700;font-size:15px">R$ ${Number(proj.vgv || 0).toLocaleString('pt-BR')}</div></div>
+</div></section>
+
+<section><h2>02. Indicadores Gerais</h2><span class="acc"></span>
+<div class="kg">
+<div class="kc"><div class="kl">PPC</div><div class="kv">${s['02'].ppc || 0}%</div><div class="ks">Meta: > 85%</div></div>
+<div class="kc"><div class="kl">IDP</div><div class="kv">${(s['02'].idp || 1.0).toFixed(2)}</div><div class="ks">Meta: ≤ 1.0</div></div>
+<div class="kc"><div class="kl">IDC</div><div class="kv">${(s['02'].idc || 1.0).toFixed(2)}</div><div class="ks">Meta: ≤ 1.0</div></div>
+</div></section>
+
+${s['03'].disciplinas && s['03'].disciplinas.length > 0 ? `<section><h2>03. Disciplinas</h2><span class="acc"></span>
+<table><thead><tr><th>Disciplina</th><th>Projetista</th><th>Coordenação</th><th>Status</th></tr></thead><tbody>
+${s['03'].disciplinas.map(d => `<tr><td>${d.nome}</td><td>${d.projetista || '—'}</td><td>${d.coordenacao || '—'}</td><td><strong>${d.status}</strong></td></tr>`).join('')}
+</tbody></table></section>` : ''}
+
+${s['04'].fases && s['04'].fases.length > 0 ? `<section><h2>04. Fases</h2><span class="acc"></span>
+${s['04'].fases.map(f => `<h3>${f.nome}</h3><p style="font-size:12px;color:#666;margin-bottom:8px">${f.dataInicio} até ${f.dataFim}</p><div style="background:var(--c1);height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--amarelo);height:100%;width:${f.percentual}%"></div></div><p style="font-size:12px;color:#666;margin-top:6px"><strong>${f.percentual}%</strong> concluído</p>`).join('')}
+</section>` : ''}
+
+<section><h2>05. Status</h2><span class="acc"></span>
+<div class="kg">
+<div class="kc"><div class="kl">Pendente</div><div class="kv" style="color:var(--red)">${s['05'].itens.filter(i => i.status === 'Pendente').length}</div></div>
+<div class="kc"><div class="kl">Limbo</div><div class="kv">${s['05'].itens.filter(i => i.status === 'Limbo').length}</div></div>
+<div class="kc"><div class="kl">Concluído</div><div class="kv" style="color:var(--grn)">${s['05'].itens.filter(i => i.status === 'Concluído').length}</div></div>
+</div></section>
+
+${s['08'].resumo || s['08'].riscos || s['08'].acoes ? `<section><h2>06. Conclusão</h2><span class="acc"></span>
+${s['08'].resumo ? `<h3>Resumo Executivo</h3><p>${s['08'].resumo.replace(/\n/g, '<br>')}</p>` : ''}
+${s['08'].riscos ? `<h3>Riscos</h3><ul style="margin-left:20px">${s['08'].riscos.split('\n').filter(r => r.trim()).map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
+${s['08'].acoes ? `<h3>Ações</h3><ul style="margin-left:20px">${s['08'].acoes.split('\n').filter(a => a.trim()).map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+</section>` : ''}
+
+<div class="footer"><p>Dossiê gerado pelo Sistema de Gestão de Projetos AORB</p></div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `AORB_${proj.nome.replace(/\s+/g, '_')}_${proj.versao}.html`;
+  link.click();
+}
+
+atualizarSelect();
+</script>
+</body>
+</html>
